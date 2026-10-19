@@ -75,6 +75,12 @@
       <div class="action-line"><button type="button" id="cancel-address" class="btn-outline">Cancelar</button><button type="submit" class="btn-primary">Salvar correção</button></div>
     </form>
   </dialog>
+  <dialog id="history-dialog" class="dialog">
+    <h2>Histórico do agendamento</h2>
+    <p>Registros de mudanças e versões mantidos pelo Supabase.</p>
+    <div id="history-records" aria-live="polite"></div>
+    <div class="action-line"><button type="button" class="btn-outline" id="close-history">Fechar</button></div>
+  </dialog>
 </div>
 <script src="./app.js" defer></script>
 </body>
