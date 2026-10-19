@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#112b3d">
+<meta name="referrer" content="no-referrer">
+<title>ColetaFlow — Acesso restrito</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <div class="logo">✳</div>
+    <div class="brand"><strong>ColetaFlow</strong><small>Coletas domiciliares · Acesso restrito</small></div>
+    <div class="mast-actions"><span id="current-user"></span><button id="logout" class="btn-outline" hidden>Sair</button></div>
+  </header>
+  <main class="container">
+    <div id="notice" role="status" aria-live="polite"></div>
+    <section id="login-screen" class="auth-panel">
+      <div class="section-label">ACESSO DE COLABORADORES</div>
+      <h1>Entre na sua conta</h1>
+      <p>Somente profissionais previamente autorizados pelo laboratório podem acessar os agendamentos.</p>
+      <form id="login-form" autocomplete="off">
+        <label>E-mail corporativo<input name="email" type="email" autocomplete="username" required placeholder="usuario@laboratorio.com.br"></label>
+        <label>Senha<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit" class="btn-primary" id="login-button">Entrar</button>
+      </form>
+      <p class="caution">Ambiente em preparação. Não insira pacientes reais até a liberação formal do piloto.</p>
+    </section>
+    <section id="workspace" hidden>
+      <div class="page-title"><div><div class="section-label">CONTROLE OPERACIONAL</div><h1 id="page-heading">Agendamentos</h1><p id="page-description">Registros de coletas domiciliares</p></div><button id="refresh" class="btn-outline">Atualizar</button></div>
+      <div id="metrics" class="metrics"></div>
+      <div id="booking-panel" class="panel" hidden>
+        <div class="panel-heading"><h2>Novo agendamento</h2><span>Horário informativo · sem bloqueio de vagas</span></div>
+        <form id="booking-form" class="form-grid">
+          <label class="span-2">Nome do paciente<input name="patientName" maxlength="180" autocomplete="off" required></label>
+          <label>Telefone<input name="patientPhone" maxlength="24" autocomplete="off" required></label>
+          <label>Equipe<select name="teamId" id="team-select" required></select></label>
+          <label class="span-2">Rua / Estrada<input name="street" maxlength="200" autocomplete="off" required></label>
+          <label>Número (ou S/N)<input name="number" maxlength="30" autocomplete="off" required></label>
+          <label>Bairro<input name="neighborhood" maxlength="120" autocomplete="off"></label>
+          <label>Cidade<input name="city" value="Mineiros" maxlength="100" required></label>
+          <label>UF<input name="uf" value="GO" maxlength="2" pattern="[A-Za-z]{2}" required></label>
+          <label>Data da coleta<input type="date" name="date" required></label>
+          <label>Horário<input type="time" name="time" required></label>
+          <label class="span-2">Coletor responsável<select name="collectorId" id="collector-select" required></select></label>
+          <label class="span-2">Complemento / referência<input name="reference" maxlength="250" autocomplete="off"></label>
+          <div class="span-2 action-line"><button type="submit" class="btn-primary" id="save-booking">Registrar agendamento</button></div>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="panel-heading"><h2>Coletas registradas</h2><span id="appointment-count">0 registros</span></div>
+        <div id="appointments" class="list" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+  <dialog id="address-dialog" class="dialog">
+    <form id="address-form" method="dialog">
+      <h2>Corrigir endereço</h2>
+      <p>Correções são registradas com autor, data, justificativa e versão anterior.</p>
+      <input type="hidden" name="appointmentId">
+      <input type="hidden" name="expectedVersion">
+      <label>Rua / Estrada<input name="street" maxlength="200" required></label>
+      <div class="two"><label>Número (ou S/N)<input name="number" maxlength="30" required></label><label>Bairro<input name="neighborhood" maxlength="120"></label></div>
+      <div class="two"><label>Cidade<input name="city" maxlength="100" required></label><label>UF<input name="uf" maxlength="2" pattern="[A-Za-z]{2}" required></label></div>
+      <label>Complemento / referência<input name="reference" maxlength="250"></label>
+      <label>Motivo<select name="reason" required>
+        <option value="">Selecione</option><option value="Numero incorreto">Número incorreto</option>
+        <option value="Rua incorreta">Rua incorreta</option><option value="Bairro incorreto">Bairro incorreto</option>
+        <option value="Endereco incompleto">Endereço incompleto</option><option value="Paciente informou outro endereco">Paciente informou outro endereço</option>
+        <option value="Outro motivo">Outro motivo</option>
+      </select></label>
+      <label>Observação (obrigatória em "Outro motivo")<input name="note" maxlength="300"></label>
+      <div class="action-line"><button type="button" id="cancel-address" class="btn-outline">Cancelar</button><button type="submit" class="btn-primary">Salvar correção</button></div>
+    </form>
+  </dialog>
+</div>
+<script src="./app.js" defer></script>
+</body>
+</html>
