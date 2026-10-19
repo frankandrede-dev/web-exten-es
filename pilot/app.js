@@ -131,6 +131,7 @@ function render(){
   if(!profile)return;
   $('current-user').textContent=profile.full_name+' · '+({'COLLECTOR':'Coletor','ATTENDANT':'Atendente','SUPERVISOR':'Supervisor','ADMIN':'Admin'}[profile.role]);
   $('booking-panel').hidden=!hasBookingPermission();
+  $('staff-panel').hidden=profile.role!=='ADMIN';
   $('page-heading').textContent=profile.role==='COLLECTOR'?'Minhas coletas':'Agendamentos';
   $('page-description').textContent=profile.role==='COLLECTOR'
       ?'Somente agendamentos atribuídos ao seu usuário.'
@@ -149,6 +150,10 @@ function render(){
        state.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
     $('collector-select').innerHTML='<option value="">Escolha o profissional</option>'+
        state.collectors.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.display_name)+'</option>').join('');
+    if(profile.role==='ADMIN'){
+      $('staff-team').innerHTML='<option value="">Escolha a equipe</option>'+
+        state.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
+    }
   }
 }
 async function signIn(event){
@@ -353,6 +358,32 @@ $('invite-password-form').addEventListener('submit',async event=>{
     notify('Senha definida. Aguarde a ativação do seu perfil pelo administrador antes de fazer login.');
   }catch(e){notify(messageForError(e),true)}
   finally{setBusy(false)}
+});
+$('staff-role').addEventListener('change',()=>{
+  const collector=$('staff-role').value==='COLLECTOR';
+  $('staff-team-wrap').hidden=collector;
+  $('staff-team').required=!collector;
+  if(collector)$('staff-team').value='';
+});
+$('staff-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(state.busy||state.profile?.role!=='ADMIN')return;
+  const form=event.currentTarget;if(!form.reportValidity())return;
+  const d=Object.fromEntries(new FormData(form).entries());
+  if(d.role!=='COLLECTOR'&&!d.teamId){notify('Selecione uma equipe.',true);return;}
+  setBusy(true);
+  try{
+    await rpc('provision_staff_by_email',{
+      p_email:normal(d.email),p_full_name:normal(d.fullName),p_role:d.role,
+      p_team_id:d.role==='COLLECTOR'?null:d.teamId
+    });
+    form.reset();$('staff-team-wrap').hidden=false;$('staff-team').required=true;
+    await loadData();notify('Perfil cadastrado. O colaborador pode entrar com sua própria conta Supabase.');
+  }catch(e){
+    if(e?.status===400){
+      notify('Não foi possível cadastrar. Verifique se o e-mail foi confirmado no Supabase e se o perfil já não existe.',true);
+    }else{notify(messageForError(e),true)}
+  }finally{setBusy(false)}
 });
 $('login-form').addEventListener('submit',signIn);
 $('booking-form').addEventListener('submit',saveBooking);
