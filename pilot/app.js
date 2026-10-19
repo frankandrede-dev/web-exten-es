@@ -17,7 +17,7 @@ const STEPS={
   NO_LOCAL:['EM_COLETA','Iniciar coleta'],
   EM_COLETA:['REALIZADA','Finalizar coleta'],
 };
-const state={session:null,profile:null,teams:[],collectors:[],patients:[],appointments:[],busy:false};
+const state={session:null,profile:null,teams:[],collectors:[],patients:[],appointments:[],busy:false,invitation:false};
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normal=v=>String(v??'').trim();
@@ -124,7 +124,8 @@ function buildCard(a){
 }
 function render(){
   const profile=state.profile;
-  $('login-screen').hidden=!!profile;
+  $('login-screen').hidden=!!profile||state.invitation;
+  $('invite-screen').hidden=!state.invitation;
   $('workspace').hidden=!profile;
   $('logout').hidden=!profile;
   if(!profile)return;
@@ -305,6 +306,54 @@ async function showHistory(id){
   }catch(e){records.textContent=messageForError(e)}
 }
 $('close-history').addEventListener('click',()=>$('history-dialog').close());
+async function acceptInvitationFromUrl(){
+  // Supabase invitation links use fragment credentials. Remove them from the URL
+  // before any API call or rendering. Never log, persist, or expose these tokens.
+  const raw=window.location.hash;
+  if(!raw)return;
+  const fragment=new URLSearchParams(raw.slice(1));
+  const kind=fragment.get('type');
+  if(kind!=='invite')return;
+  window.history.replaceState(null,'',window.location.pathname+window.location.search);
+  const access=fragment.get('access_token'),refresh=fragment.get('refresh_token');
+  if(!access||!refresh){notify('Convite inválido ou expirado. Solicite outro convite.',true);return;}
+  try{
+    const response=await fetch(BASE+'/auth/v1/user',{
+      headers:{'apikey':PUBLISHABLE_KEY,'Authorization':'Bearer '+access},cache:'no-store'
+    });
+    const user=await parseResponse(response);
+    adoptSession({access_token:access,refresh_token:refresh,
+      expires_in:Number(fragment.get('expires_in')||3600),user});
+    state.invitation=true;
+    render();notify('Convite validado. Defina sua senha de acesso.');
+  }catch(e){
+    state.session=null;state.invitation=false;render();
+    notify('Não foi possível validar o convite. Solicite outro convite.',true);
+  }
+}
+$('invite-password-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(state.busy||!state.invitation||!state.session)return;
+  const form=event.currentTarget;
+  const password=form.elements.password.value;
+  if(password.length<12||password!==form.elements.confirmation.value){
+    notify('Use ao menos 12 caracteres e confirme a mesma senha.',true);return;
+  }
+  setBusy(true);
+  try{
+    const token=await accessToken();
+    await parseResponse(await fetch(BASE+'/auth/v1/user',{
+      method:'PUT',
+      headers:{'apikey':PUBLISHABLE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({password}),cache:'no-store'
+    }));
+    form.reset();
+    state.invitation=false;state.session=null;state.profile=null;
+    render();
+    notify('Senha definida. Aguarde a ativação do seu perfil pelo administrador antes de fazer login.');
+  }catch(e){notify(messageForError(e),true)}
+  finally{setBusy(false)}
+});
 $('login-form').addEventListener('submit',signIn);
 $('booking-form').addEventListener('submit',saveBooking);
 $('address-form').addEventListener('submit',saveAddress);
@@ -323,3 +372,4 @@ $('logout').addEventListener('click',async()=>{
   if(token)try{await authRequest('/auth/v1/logout',{},token)}catch{}
 });
 render();
+acceptInvitationFromUrl();
