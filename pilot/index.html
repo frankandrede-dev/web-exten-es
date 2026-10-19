@@ -42,6 +42,21 @@
     <section id="workspace" hidden>
       <div class="page-title"><div><div class="section-label">CONTROLE OPERACIONAL</div><h1 id="page-heading">Agendamentos</h1><p id="page-description">Registros de coletas domiciliares</p></div><button id="refresh" class="btn-outline">Atualizar</button></div>
       <div id="metrics" class="metrics"></div>
+      <div id="staff-panel" class="panel" hidden>
+        <div class="panel-heading"><h2>Cadastrar profissional</h2><span>Somente administrador · contas já confirmadas no Supabase</span></div>
+        <form id="staff-form" class="form-grid">
+          <label>E-mail confirmado<input name="email" type="email" autocomplete="off" placeholder="colaborador@exemplo.com" maxlength="250" required></label>
+          <label>Nome completo<input name="fullName" maxlength="150" autocomplete="off" required></label>
+          <label>Perfil<select name="role" id="staff-role" required>
+            <option value="ATTENDANT">Atendente</option>
+            <option value="SUPERVISOR">Supervisor</option>
+            <option value="COLLECTOR">Coletor</option>
+          </select></label>
+          <label id="staff-team-wrap">Equipe WhatsApp<select name="teamId" id="staff-team" required></select></label>
+          <p class="span-2 caution">Convide o profissional primeiro em Authentication → Users no Supabase. Apenas contas confirmadas podem ser cadastradas. Nenhuma senha é solicitada aqui.</p>
+          <div class="span-2 action-line"><button type="submit" class="btn-primary">Ativar perfil do colaborador</button></div>
+        </form>
+      </div>
       <div id="booking-panel" class="panel" hidden>
         <div class="panel-heading"><h2>Novo agendamento</h2><span>Horário informativo · sem bloqueio de vagas</span></div>
         <form id="booking-form" class="form-grid">
