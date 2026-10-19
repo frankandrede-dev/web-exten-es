@@ -4,6 +4,7 @@
  */
 'use strict';
 const BASE='https://wezwsnwndazsxtrklgxg.supabase.co';
+const APP_URL='https://web-exten-es.frankandrede.workers.dev/';
 const PUBLISHABLE_KEY="sb_publishable_GG1rZ614vsy_yLhL0xOAxQ_A2_AFmSj";
 const STATUSES={
   AGENDADA:'Agendada',CIENTE:'Ciente',EM_DESLOCAMENTO:'Em deslocamento',
@@ -318,10 +319,10 @@ async function acceptInvitationFromUrl(){
   if(!raw)return;
   const fragment=new URLSearchParams(raw.slice(1));
   const kind=fragment.get('type');
-  if(kind!=='invite')return;
+  if(kind!=='invite'&&kind!=='recovery')return;
   window.history.replaceState(null,'',window.location.pathname+window.location.search);
   const access=fragment.get('access_token'),refresh=fragment.get('refresh_token');
-  if(!access||!refresh){notify('Convite inválido ou expirado. Solicite outro convite.',true);return;}
+  if(!access||!refresh){notify('Link inválido ou expirado. Solicite um novo link de acesso.',true);return;}
   try{
     const response=await fetch(BASE+'/auth/v1/user',{
       headers:{'apikey':PUBLISHABLE_KEY,'Authorization':'Bearer '+access},cache:'no-store'
@@ -330,10 +331,11 @@ async function acceptInvitationFromUrl(){
     adoptSession({access_token:access,refresh_token:refresh,
       expires_in:Number(fragment.get('expires_in')||3600),user});
     state.invitation=true;
-    render();notify('Convite validado. Defina sua senha de acesso.');
+    $('password-setup-title').textContent=kind==='recovery'?'Redefinir minha senha':'Definir senha de acesso';
+    render();notify(kind==='recovery'?'Link de recuperação validado. Cadastre sua nova senha.':'Convite validado. Defina sua senha de acesso.');
   }catch(e){
     state.session=null;state.invitation=false;render();
-    notify('Não foi possível validar o convite. Solicite outro convite.',true);
+    notify('Não foi possível validar o link de acesso. Solicite outro link de recuperação de senha.',true);
   }
 }
 $('invite-password-form').addEventListener('submit',async event=>{
@@ -353,9 +355,10 @@ $('invite-password-form').addEventListener('submit',async event=>{
       body:JSON.stringify({password}),cache:'no-store'
     }));
     form.reset();
+    try { await authRequest('/auth/v1/logout',{},token); } catch {}
     state.invitation=false;state.session=null;state.profile=null;
     render();
-    notify('Senha definida. Aguarde a ativação do seu perfil pelo administrador antes de fazer login.');
+    notify('Senha atualizada. Entre no ColetaFlow com seu e-mail e a nova senha.');
   }catch(e){notify(messageForError(e),true)}
   finally{setBusy(false)}
 });
@@ -383,6 +386,25 @@ $('staff-form').addEventListener('submit',async event=>{
     if(e?.status===400){
       notify('Não foi possível cadastrar. Verifique se o e-mail foi confirmado no Supabase e se o perfil já não existe.',true);
     }else{notify(messageForError(e),true)}
+  }finally{setBusy(false)}
+});
+$('forgot-password').addEventListener('click',async ()=>{
+  if(state.busy)return;
+  const email=normal($('login-form').elements.email.value);
+  if(!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+    notify('Informe seu e-mail no campo de login antes de solicitar a recuperação.',true);
+    $('login-form').elements.email.focus();
+    return;
+  }
+  setBusy(true);
+  try{
+    // This uses the user's own email, Supabase rate limits and the allowlisted
+    // production redirect. Never disclose whether an email is registered.
+    const redirect=encodeURIComponent(APP_URL);
+    await authRequest('/auth/v1/recover?redirect_to='+redirect,{email});
+    notify('Se o e-mail estiver cadastrado, você receberá um link para definir uma nova senha. Verifique a caixa de entrada e o spam.');
+  }catch(e){
+    notify('Não foi possível solicitar recuperação agora. Confira se a URL do Worker está permitida no Supabase Auth e tente novamente.',true);
   }finally{setBusy(false)}
 });
 $('login-form').addEventListener('submit',signIn);
