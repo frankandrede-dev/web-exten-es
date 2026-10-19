@@ -4,6 +4,19 @@
 
 Este portal é **separado** da demonstração pública em `web/`. O frontend usa Supabase Auth e funções PostgreSQL RPC autorizadas com autenticação.
 
+## Recuperação de senha do primeiro administrador
+
+Se o Supabase mostrar `A user with this email address has already been registered`, **não reenvie convite**. A conta já existe.
+
+1. No endereço oficial `https://web-exten-es.frankandrede.workers.dev/`, digite o e-mail no campo de login.
+2. Clique em **Esqueci minha senha**. O formulário envia uma solicitação ao Supabase Auth com `redirect_to` apontando para o endereço de produção acima; não cria contas novas.
+3. Confirme que **Authentication → URL Configuration** contém este mesmo endereço em **Site URL** e em **Redirect URLs**; caso contrário, o link poderá cair em `localhost`.
+4. Abra o e-mail recebido e defina uma senha forte e exclusiva diretamente no portal. Não compartilhe a senha.
+5. Depois de recuperar a senha, faça login. O perfil `ADMIN` deve estar vinculado ao usuário confirmado no banco.
+6. Se o e-mail de recuperação não chegar, consulte a caixa de spam, limites de envio e logs em Supabase → Authentication → Logs.
+
+A UI e o Supabase exigem contas autenticadas; **pacientes reais continuam bloqueados** até o fim da revisão de segurança e privacidade.
+
 ## Endpoints e chaves
 
 - URL pública: `https://wezwsnwndazsxtrklgxg.supabase.co`
