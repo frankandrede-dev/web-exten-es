@@ -28,6 +28,17 @@
       </form>
       <p class="caution">Ambiente em preparação. Não insira pacientes reais até a liberação formal do piloto.</p>
     </section>
+    <section id="invite-screen" class="auth-panel" hidden>
+      <div class="section-label">PRIMEIRO ACESSO</div>
+      <h1>Definir senha de acesso</h1>
+      <p>Seu convite foi confirmado. Escolha uma senha exclusiva para acessar o ColetaFlow.</p>
+      <form id="invite-password-form">
+        <label>Nova senha<input name="password" type="password" autocomplete="new-password" minlength="12" required></label>
+        <label>Confirmar senha<input name="confirmation" type="password" autocomplete="new-password" minlength="12" required></label>
+        <button type="submit" class="btn-primary">Salvar minha senha</button>
+      </form>
+      <p class="caution">O acesso aos agendamentos só será liberado depois que um administrador cadastrar seu perfil.</p>
+    </section>
     <section id="workspace" hidden>
       <div class="page-title"><div><div class="section-label">CONTROLE OPERACIONAL</div><h1 id="page-heading">Agendamentos</h1><p id="page-description">Registros de coletas domiciliares</p></div><button id="refresh" class="btn-outline">Atualizar</button></div>
       <div id="metrics" class="metrics"></div>
