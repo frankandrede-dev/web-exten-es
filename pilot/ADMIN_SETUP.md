@@ -20,7 +20,7 @@ A publicação foi informada como concluída pelo usuário. A URL foi vinculada 
 No projeto Supabase `wezwsnwndazsxtrklgxg`, acesse **Authentication → URL Configuration** e informe:
 
 - **Site URL:** `https://web-exten-es.frankandrede.workers.dev/`
-- **Redirect URLs:** adicionar `https://web-exten-es.frankandrede.workers.dev/**`
+- **Redirect URLs:** adicionar exatamente `https://web-exten-es.frankandrede.workers.dev/`
 
 É preferível restringir redirecionamentos aos caminhos específicos usados pelo portal assim que o fluxo de convite for estabilizado. Para a primeira implantação, confira que o link recebido redireciona para o Worker de fato publicado e não para localhost.
 
