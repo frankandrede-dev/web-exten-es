@@ -1,0 +1,5 @@
+# Não publicar os documentos de implantação no diretório estático.
+README.md
+ADMIN_SETUP.md
+*.map
+.DS_Store
