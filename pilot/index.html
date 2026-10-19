@@ -25,19 +25,20 @@
         <label>E-mail corporativo<input name="email" type="email" autocomplete="username" required placeholder="usuario@laboratorio.com.br"></label>
         <label>Senha<input name="password" type="password" autocomplete="current-password" required></label>
         <button type="submit" class="btn-primary" id="login-button">Entrar</button>
+        <button type="button" class="btn-outline" id="forgot-password">Esqueci minha senha</button>
       </form>
       <p class="caution">Ambiente em preparação. Não insira pacientes reais até a liberação formal do piloto.</p>
     </section>
     <section id="invite-screen" class="auth-panel" hidden>
       <div class="section-label">PRIMEIRO ACESSO</div>
-      <h1>Definir senha de acesso</h1>
+      <h1 id="password-setup-title">Definir senha de acesso</h1>
       <p>Seu convite foi confirmado. Escolha uma senha exclusiva para acessar o ColetaFlow.</p>
       <form id="invite-password-form">
         <label>Nova senha<input name="password" type="password" autocomplete="new-password" minlength="12" required></label>
         <label>Confirmar senha<input name="confirmation" type="password" autocomplete="new-password" minlength="12" required></label>
         <button type="submit" class="btn-primary">Salvar minha senha</button>
       </form>
-      <p class="caution">O acesso aos agendamentos só será liberado depois que um administrador cadastrar seu perfil.</p>
+      <p class="caution">Use uma senha exclusiva. Não compartilhe sua senha com ninguém.</p>
     </section>
     <section id="workspace" hidden>
       <div class="page-title"><div><div class="section-label">CONTROLE OPERACIONAL</div><h1 id="page-heading">Agendamentos</h1><p id="page-description">Registros de coletas domiciliares</p></div><button id="refresh" class="btn-outline">Atualizar</button></div>
