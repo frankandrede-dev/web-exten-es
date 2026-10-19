@@ -11,6 +11,17 @@ Este portal é **separado** da demonstração pública em `web/`. O frontend usa
 - Nenhuma chave secreta/service_role deve ser copiada para a aplicação ou para o GitHub.
 - Todas as ações de escrita são realizadas por RPCs com validação de permissões no servidor.
 
+## Primeiro administrador
+
+1. Publicar **somente o portal técnico `pilot/`** em um projeto Cloudflare Pages separado. O endereço `https://*.pages.dev` precisa existir antes de enviar convites.
+2. No Supabase, configurar **Authentication → URL Configuration → Site URL** para o URL real do portal `pilot/` publicado, e incluí-lo em **Redirect URLs**.
+3. Em **Authentication → Users → Add user → Send invitation**, enviar o convite ao e-mail do administrador. A inclusão via painel é necessária porque o conector Supabase não fornece uma ação para enviar convites Auth.
+4. O convidado abre o link recebido, que o redireciona para o portal e permite definir uma senha pessoal (mínimo de 12 caracteres). **Não compartilhar senha com o assistente.**
+5. Após a confirmação da identidade no Supabase Auth, o administrador do banco provisiona o perfil com papel `ADMIN` em `public.profiles` por SQL administrativo autenticado ou outra ferramenta protegida; este passo **não é automático**.
+6. Validar login e permissões com contas fictícias antes de qualquer coleta real. Desabilitar inscrição pública após definir o procedimento de convites.
+
+Nenhuma senha, token de convite ou chave secreta deve ser armazenada no repositório.
+
 ## Antes de usar com pacientes reais
 
 1. **Configurar Supabase Auth** em Authentication > Providers/Sign In:
