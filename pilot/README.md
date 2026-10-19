@@ -65,6 +65,7 @@ Crie **um projeto separado** da demo, publicando a pasta `pilot`:
 - Não possui cadastro administrativo de equipes/usuários; a criação é por administrador no Supabase.
 - Listagem limitada a 200 agendamentos por carga; paginação é melhoria futura.
 - Não há sincronização push via Realtime; botão Atualizar recarrega os registros.
-- Não inclui histórico detalhado de alterações na interface ainda; a RPC armazena versões no banco.
+- Histórico administrativo e versões de endereço são apresentados em **Ver histórico**, com permissões protegidas por RLS.
+- Não foi feito teste ponta a ponta com contas de colaboradores reais.
 - Sem testes reais de segregação por múltiplas contas até o cadastro dos usuários de teste.
 - Pendências de acessibilidade, revisão de segurança independente, avaliação de privacidade e aprovação do laboratório.
