@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142538">
+  <meta name="description" content="Protótipo de gestão de agendamentos e coletas domiciliares. Dados fictícios; sem integração com o banco.">
+  <title>ColetaFlow | Gestão de coletas domiciliares</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app" class="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✳</span>
+        <span><strong>ColetaFlow</strong><small>Gestão laboratorial</small></span>
+      </div>
+      <div class="side-label">ÁREA DE TRABALHO</div>
+      <nav id="nav" class="nav" aria-label="Módulos"></nav>
+      <div class="sidebar-bottom">
+        <div class="demo-tip"><strong>Ambiente de demonstração</strong><span>Use somente dados fictícios. Nada é enviado ao Supabase.</span></div>
+        <div class="avatar-line"><span class="avatar">DE</span><span><strong>Usuário de teste</strong><small id="role-label">Atendimento</small></span></div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" id="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <div class="breadcrumb"><span>Laboratório</span><span class="crumb-sep">/</span><strong id="breadcrumb">Visão geral</strong></div>
+        <div class="top-actions">
+          <span class="demo-pill"><span class="live-dot"></span> Demo local</span>
+          <label class="role-control" for="role-picker">Visualizar como
+            <select id="role-picker" aria-label="Alternar perfil de demonstração">
+              <option value="attendant">Atendente</option>
+              <option value="collector">Coletor 01</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+          </label>
+          <span class="circle-avatar" aria-hidden="true">DE</span>
+        </div>
+      </header>
+      <main id="main" tabindex="-1" aria-live="polite"></main>
+      <footer class="footer-note">Protótipo com dados simulados · Sem informações reais de pacientes · Sem conexão com WhatsApp ou Supabase</footer>
+    </div>
+  </div>
+  <div id="mobile-backdrop" class="mobile-backdrop" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="appointment-dialog" class="modal">
+    <form id="appointment-form" class="modal-form" novalidate>
+      <div class="modal-header">
+        <div><div class="eyebrow">ATENDIMENTO</div><h2>Novo agendamento</h2><p>Registre a coleta domiciliar e atribua um profissional.</p></div>
+        <button type="button" class="icon-btn" data-action="close-appointment" aria-label="Fechar formulário">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-section-title"><span>1</span> Dados do paciente</div>
+        <div class="form-grid">
+          <label class="field wide">Nome completo *<input name="patient" maxlength="140" autocomplete="off" required placeholder="Ex.: Paciente de demonstração"></label>
+          <label class="field">Telefone *<input name="phone" inputmode="tel" minlength="8" maxlength="24" required placeholder="(64) 99999-9999"></label>
+          <label class="field">Equipe de origem *<select name="team" required><option value="01">WhatsApp 01</option><option value="02">WhatsApp 02</option></select></label>
+        </div>
+        <div class="form-section-title"><span>2</span> Endereço da coleta</div>
+        <div class="form-grid">
+          <label class="field wide">Logradouro / Estrada *<input name="street" maxlength="180" required placeholder="Rua, avenida, estrada ou rodovia"></label>
+          <label class="field">Número <input name="number" maxlength="30" placeholder="Número ou S/N"></label>
+          <label class="field">Bairro <input name="neighborhood" maxlength="90" placeholder="Bairro ou região"></label>
+          <label class="field">Cidade *<input name="city" maxlength="100" value="Mineiros" required></label>
+          <label class="field">UF *<input name="uf" maxlength="2" value="GO" required></label>
+          <label class="field wide">Complemento / Referência<input name="reference" maxlength="250" placeholder="Informações para localizar o imóvel"></label>
+        </div>
+        <div class="form-section-title"><span>3</span> Data e responsável</div>
+        <div class="form-grid">
+          <label class="field">Data *<input name="date" type="date" value="2026-10-20" required></label>
+          <label class="field">Horário informado *<input name="time" type="time" value="08:30" required></label>
+          <label class="field wide">Profissional coletor *<select name="collector" required><option value="col1">Coletor 01</option><option value="col2">Coletor 02</option><option value="col3">Coletor 03</option><option value="col4">Coletor 04</option></select></label>
+        </div>
+        <p class="field-hint">O horário é informativo: não há bloqueio por vagas nem por horários coincidentes.</p>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" data-action="close-appointment">Cancelar</button><button type="submit" class="btn btn-primary">Adicionar à simulação</button></div>
+    </form>
+  </dialog>
+  <dialog id="address-dialog" class="modal">
+    <form id="address-form" class="modal-form" novalidate>
+      <div class="modal-header"><div><div class="eyebrow">COLETAS</div><h2>Corrigir endereço</h2><p>O endereço anterior será mantido no histórico desta simulação.</p></div><button type="button" class="icon-btn" data-action="close-address" aria-label="Fechar formulário">✕</button></div>
+      <div class="modal-body">
+        <input type="hidden" name="appointmentId">
+        <div id="old-address" class="readonly-address"></div>
+        <div class="form-grid">
+          <label class="field wide">Rua / Estrada *<input name="street" required maxlength="180"></label>
+          <label class="field">Número <input name="number" maxlength="30"></label>
+          <label class="field">Bairro<input name="neighborhood" maxlength="90"></label>
+          <label class="field">Cidade *<input name="city" required maxlength="100"></label>
+          <label class="field">UF *<input name="uf" required maxlength="2"></label>
+          <label class="field wide">Complemento / Referência<input name="reference" maxlength="250"></label>
+          <label class="field wide">Motivo da correção *<select name="reason" required>
+            <option value="">Selecione um motivo</option>
+            <option>Número incorreto</option><option>Rua incorreta</option><option>Bairro incorreto</option><option>Endereço incompleto</option><option>Paciente informou novo endereço</option><option>Outro motivo</option>
+          </select></label>
+        </div>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" data-action="close-address">Cancelar</button><button class="btn btn-primary" type="submit">Salvar correção simulada</button></div>
+    </form>
+  </dialog>
+  <script src="./app.js" defer></script>
+</body>
+</html>
