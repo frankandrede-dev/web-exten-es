@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "WhatsApp Web Companion",
+  "short_name": "WA Companion",
+  "description": "Painel local de demandas, notas, respostas rápidas e personalização reversível do WhatsApp Web.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage", "sidePanel", "clipboardWrite"],
+  "action": {
+    "default_title": "Abrir WhatsApp Web Companion"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
