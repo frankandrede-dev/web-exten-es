@@ -117,7 +117,7 @@ function buildCard(a){
   '<div class="item-grid"><div class="item-data"><small>Endereço</small>'+esc(address(a))+'</div>'+
   '<div class="item-data"><small>Responsável</small>'+esc(collector?.display_name||'Coletor')+
   '<div><small>Contato</small>'+esc(patient?.phone||'—')+'</div></div></div>'+
-  '<div class="item-actions">'+(canCorrect?btn('address','Corrigir endereço'):'')+
+  '<div class="item-actions">'+btn('history','Ver histórico')+(canCorrect?btn('address','Corrigir endereço'):'')+
   (canChange&&step?btn('advance',step[1]):'')+
   (canChange&&active?btn('failure','Não realizada',true):'')+
   (canCancel?btn('cancel','Cancelar',true):'')+'</div></article>';
@@ -248,6 +248,7 @@ async function perform(id,action){
   const collector=collectorById(a.collector_id);
   const myCollection=state.profile.role==='COLLECTOR'&&collector?.user_id===state.profile.user_id;
   const active=!['CANCELADA','REALIZADA','NAO_REALIZADA'].includes(a.status);
+  if(action==='history'){await showHistory(id);return;}
   if(action==='address'){openAddress(id);return;}
   if(!active)return;
   let rpcName,payload;
@@ -275,6 +276,35 @@ async function perform(id,action){
   }catch(e){notify(messageForError(e),true)}
   finally{setBusy(false)}
 }
+async function showHistory(id){
+  const a=state.appointments.find(x=>x.id===id);
+  if(!a)return;
+  const records=$('history-records');
+  records.textContent='Carregando histórico...';
+  $('history-dialog').showModal();
+  try{
+    const [versions,events]=await Promise.all([
+      dbRequest('appointment_address_history?select=version_from,version_to,reason,changed_at,old_address,new_address&appointment_id=eq.'+encodeURIComponent(id)+'&order=changed_at.desc&limit=100'),
+      dbRequest('appointment_events?select=event_type,reason,occurred_at&appointment_id=eq.'+encodeURIComponent(id)+'&order=occurred_at.desc&limit=100')
+    ]);
+    const fmt=iso=>new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Sao_Paulo'}).format(new Date(iso));
+    const asAddress=src=>[src?.street,src?.number,src?.neighborhood,src?.city,src?.uf,src?.reference].filter(Boolean).join(' · ');
+    const versionsHtml=versions.map(h=>
+      '<article class="history-entry"><strong>Endereço versão '+esc(h.version_from)+' → '+esc(h.version_to)+'</strong>'+
+      '<small>'+esc(fmt(h.changed_at))+' · '+esc(h.reason)+'</small>'+
+      '<div><b>Antes:</b> '+esc(asAddress(h.old_address))+'</div>'+
+      '<div><b>Depois:</b> '+esc(asAddress(h.new_address))+'</div></article>'
+    ).join('');
+    const eventsHtml=events.map(e=>
+      '<article class="history-entry"><strong>'+esc(e.event_type)+'</strong>'+
+      '<small>'+esc(fmt(e.occurred_at))+'</small>'+
+      (e.reason?'<div>Motivo: '+esc(e.reason)+'</div>':'')+'</article>'
+    ).join('');
+    records.innerHTML='<h3>Correções de endereço</h3>'+(versionsHtml||'<p>Nenhuma correção registrada.</p>')+
+      '<h3>Eventos operacionais</h3>'+(eventsHtml||'<p>Nenhum evento registrado.</p>');
+  }catch(e){records.textContent=messageForError(e)}
+}
+$('close-history').addEventListener('click',()=>$('history-dialog').close());
 $('login-form').addEventListener('submit',signIn);
 $('booking-form').addEventListener('submit',saveBooking);
 $('address-form').addEventListener('submit',saveAddress);
