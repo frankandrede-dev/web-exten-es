@@ -391,7 +391,8 @@ $('staff-form').addEventListener('submit',async event=>{
 $('forgot-password').addEventListener('click',async ()=>{
   if(state.busy)return;
   const email=normal($('login-form').elements.email.value);
-  if(!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+  const at=email.indexOf('@'),dot=email.lastIndexOf('.');
+  if(at<1||dot<at+2||dot===email.length-1||email.includes(' ')){
     notify('Informe seu e-mail no campo de login antes de solicitar a recuperação.',true);
     $('login-form').elements.email.focus();
     return;
