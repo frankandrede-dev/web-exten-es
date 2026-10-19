@@ -9,6 +9,23 @@ Este guia pertence ao **projeto Supabase do laboratório**, não ao projeto da e
 - O e-mail do administrador deve ser convidado pelo painel Supabase Auth e confirmado pelo titular.
 - A senha deve ser definida pelo próprio titular. Nunca envie senha, token de convite ou chave `service_role` pelo chat.
 
+## Endereço já informado para o Worker
+
+**Portal publicado pelo usuário:** https://web-exten-es.frankandrede.workers.dev/
+
+A publicação foi informada como concluída pelo usuário. A URL foi vinculada à configuração do repositório (`wrangler.jsonc` aponta para `./pilot`), mas a resposta HTTP externa ainda precisa ser validada no navegador do titular.
+
+### Configuração exata do Supabase Auth
+
+No projeto Supabase `wezwsnwndazsxtrklgxg`, acesse **Authentication → URL Configuration** e informe:
+
+- **Site URL:** `https://web-exten-es.frankandrede.workers.dev/`
+- **Redirect URLs:** adicionar `https://web-exten-es.frankandrede.workers.dev/**`
+
+É preferível restringir redirecionamentos aos caminhos específicos usados pelo portal assim que o fluxo de convite for estabilizado. Para a primeira implantação, confira que o link recebido redireciona para o Worker de fato publicado e não para localhost.
+
+**Atenção:** nenhum conector disponível nesta sessão modifica as configurações de Auth ou envia o convite pelo Supabase. Essas duas ações exigem acesso do proprietário ao painel. Não é possível afirmar que o convite foi enviado sem confirmação.
+
 ## 1. Publicação do portal de acesso
 
 No Cloudflare Pages, conecte `frankandrede-dev/web-exten-es` e configure:
