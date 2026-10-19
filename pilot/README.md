@@ -59,6 +59,32 @@ python -m http.server 8080 --directory pilot
 
 Abra `http://localhost:8080`. A página de login somente funcionará quando houver contas Supabase autorizadas. Não insira pacientes reais para testar a interface.
 
+## Corrigir erro de detecção de arquivos estáticos no Cloudflare Workers
+
+Se a tela do Cloudflare **Trabalhadores e Páginas → Implantações** mostrar:
+
+`Não foi possível detectar um diretório contendo arquivos estáticos`
+
+o projeto está usando a implantação de **Workers Builds** (`npx wrangler deploy`), que precisa receber explicitamente o diretório estático.
+
+No Worker já criado:
+
+1. Entre em **Configurações → Construção** (Settings → Build).
+2. Em **Branch control**, altere a branch de produção para `feat/frontend-coletas-domiciliares`. A branch padrão `main` **não possui** a pasta `pilot/`.
+3. Em **Build settings** configure:
+   - Diretório raiz: raiz do repositório (em branco / `/`)
+   - Comando de construção: vazio
+   - Comando de implantação: `npx wrangler deploy --assets ./pilot`
+4. Salve e tente novamente a implantação. Pode ser necessário clicar em **Retry deployment**.
+5. Depois de concluído, abra o endereço `*.workers.dev` fornecido pela Cloudflare. Workers **não** gera endereço `pages.dev` automaticamente.
+6. Se houver erro de nome do Worker, não crie um Worker novo sem querer: confira o nome do projeto e ajuste o deploy com o nome real do Worker existente.
+
+Para **Cloudflare Pages** (projeto separado), mantenha as instruções adiante e configure `pilot` como diretório de saída, sem usar o comando `wrangler deploy`.
+
+**Não cadastre pacientes reais** enquanto os testes de autenticação, RLS, auditoria, privacidade e backup não forem concluídos.
+
+Documentação: https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
+
 ## Cloudflare Pages
 
 Crie **um projeto separado** da demo, publicando a pasta `pilot`:
